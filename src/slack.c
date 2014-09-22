@@ -15,14 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/prctl.h>
+
+
+
+#define NS  (1L)
+#define US  (1000L)
+#define MS  (1000L * 1000L)
+#define S   (1000L * 1000L * 1000L)
 
 
 static void usage(void)
@@ -46,14 +50,6 @@ static void usage(void)
   printf("slack could not be set.\n");
   printf("\n");
 }
-
-
-
-#define NS  (1L)
-#define US  (1000L)
-#define MS  (1000L * 1000L)
-#define S   (1000L * 1000L * 1000L)
-
 
 
 int main(int argc, char** argv)
@@ -114,7 +110,7 @@ int main(int argc, char** argv)
       
       slackvalue = strtol(argv[1], &end, 10);
       if (end == argv[1])
-	return fprintf(stderr, "No slack value specified."), 1;
+	return fprintf(stderr, "No slack value specified."), free(exec_argv), 1;
       
       if      (!strcmp(end, "n") || !strcmp(end, "ns") || !strcmp(end, ""))  slackvalue *= NS;
       else if (!strcmp(end, "µ") || !strcmp(end, "µs"))                      slackvalue *= US;
@@ -122,18 +118,19 @@ int main(int argc, char** argv)
       else if (!strcmp(end, "m") || !strcmp(end, "ms"))                      slackvalue *= MS;
       else if (!strcmp(end, "s"))                                            slackvalue *=  S;
       else
-	return fprintf(stderr, "Unrecognised suffix for slack value."), 1;
+	return fprintf(stderr, "Unrecognised suffix for slack value."), free(exec_argv), 1;
       
       if (slackvalue <= 0)
-	return fprintf(stderr, "Invalid slack value: %lins", slackvalue), 1;
+	return fprintf(stderr, "Invalid slack value: %lins", slackvalue), free(exec_argv), 1;
     }
   
   if (r = prctl(PR_SET_TIMERSLACK, slackvalue), r < 0)
     if (perror(*argv), fatal)
-      return 2;
+      return free(exec_argv), 2;
   
   execvp(*exec_argv, exec_argv);
   perror(*argv);
+  free(exec_argv);
   return 2;
 }
 
