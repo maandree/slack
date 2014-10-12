@@ -1,0 +1,11 @@
+(slack
+	(default (arg VERB_INTERVAL_OR_COMMAND) (files -r) (suggest cmd)
+		 (desc 'Specify which command to run'))
+	
+	(unargumented (options --fatal)
+		      (complete --fatal)
+		      (desc 'Fail if the timer slack cannot be set'))
+	
+	(suggestion cmd (verbatim get GET reset INTERVAL COMMAND))
+)
+

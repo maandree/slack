@@ -31,11 +31,11 @@
 
 static void usage(void)
 {
-  printf("USAGE: slack (get | GET | (reset | <interval> <options...> [--fatal] [--] <command...>))\n");
+  printf("USAGE: slack (get | GET | ((reset | <interval>) [--fatal] [--] <command...>))\n");
   printf("\n");
   printf("The <interval> must be a positive number optionally with a suffix:\n");
   printf("  ns  n           nanoseconds (default)\n");
-  printf("  µs  µ  ns  n    microseconds\n");
+  printf("  µs  µ  us  u    microseconds\n");
   printf("  ms  m           milliseconds\n");
   printf("  s               seconds\n");
   printf("\n");
