@@ -9,6 +9,7 @@ url="https://github.com/maandree/slack"
 license=('GPL3')
 depends=(glibc 'linux>=2.6.28')
 makedepends=(glibc gcc make coreutils texinfo auto-auto-complete)
+install=slack.install
 source=($url/archive/$pkgver.tar.gz)
 sha256sums=(efddb15b70187044c15d323b1988619c4b573121e085f084773c12a51f402624)
 
