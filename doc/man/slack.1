@@ -1,0 +1,82 @@
+.TH SLACK 1 SLACK
+.SH NAME
+slack - Spawn processes with customised timer slack
+.SH SYNOPSIS
+.B slack
+(get | GET)
+.br
+.B slack
+.RI ((reset\ |\  INTERVAL )
+[\-\-fatal] [--]
+.IR COMMAND ...)
+.SH DESCRIPTION
+If the verb 
+.B get
+or
+.B GET
+is used, the current timer slack value and exit. If get is used, the
+program shall use as high prefix as possible. If
+.V GET
+is used the value shall be printed in nanoseconds but not unit shall
+be printed.
+.PP
+If the verb reset is used, the process shall set the timer slack value
+for the process to the default timer slack value, and
+.BR exec (3)
+to
+.IR COMMAND .
+.PP
+If an
+.I INTERVAL
+is given, the process shall set the timer slack value for the process
+to
+.IR INTERVAL ,
+and
+.BR exec (3)
+to
+.IR COMMAND .
+.PP
+.I INTERVAL
+must be a positive number, optionally with a prefix. Recognised
+prefixes (and units) are:
+.TP
+.BR ns ,\  n
+nanoseconds (default)
+.TP
+.BR µs ,\  µ ,\  us \,\  u
+microseconds
+.TP
+.BR ms ,\  m
+milliseconds
+.TP
+.BR s
+seconds
+.PP
+The default timer slack value is the timer slack value on PID 1.
+.SH OPTIONS
+.TP
+.B \-\-fatal
+Fail if the timer slack value cannot be set.
+.SH NOTES
+Real-time threads do not slack around.
+.SH RATIONALE
+Could be useful increase the performance of your computer.
+.SH "SEE ALSO"
+.BR nice (1),
+.BR ionice (1),
+.BR prctl (2)
+.SH AUTHORS
+Principal author, Mattias Andrée.  See the COPYING file for the full
+list of authors.
+.SH LICENSE
+Copyright \(co 2014, 2015  Mattias Andrée
+.br
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+.br
+This is free software: you are free to change and redistribute it.
+.br
+There is NO WARRANTY, to the extent permitted by law.
+.SH BUGS
+Please report bugs to https://github.com/maandree/slack/issues or to
+maandree@member.fsf.org
+

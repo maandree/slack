@@ -18,6 +18,10 @@ DATADIR = $(PREFIX)$(DATA)
 DOCDIR = $(DATADIR)/doc
 # The info manual documentation path including prefix
 INFODIR = $(DATADIR)/info
+# The man page documentation path including prefix
+MANDIR = $(DATADIR)/man
+# The man page section 1 path including prefix
+MAN1DIR = $(MANDIR)/man1
 # The license base path including prefix.
 LICENSEDIR = $(DATADIR)/licenses
 
@@ -109,7 +113,7 @@ bin/slack.fish: src/completion
 # Install rules.
 
 .PHONY: install
-install: install-base install-info install-shell
+install: install-base install-info install-man install-shell
 
 .PHONY: install
 install-all: install-base install-doc install-shell
@@ -140,7 +144,7 @@ install-license:
 # Install documentation.
 
 .PHONY: install-doc
-install-doc: install-info install-pdf install-ps install-dvi
+install-doc: install-info install-pdf install-ps install-dvi install-man
 
 .PHONY: install-info
 install-info: bin/slack.info
@@ -161,6 +165,11 @@ install-ps: bin/slack.ps
 install-dvi: bin/slack.dvi
 	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
 	install -m644 $< -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).dvi"
+
+.PHONY: install-man
+install-man: doc/man/slack.1
+	install -dm755 -- "$(DESTDIR)$(MAN1DIR)"
+	install -m644 $< -- "$(DESTDIR)$(MAN1DIR)/$(COMMAND).1"
 
 # Install shell auto-completion.
 
@@ -195,6 +204,7 @@ uninstall:
 	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).pdf"
 	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).ps"
 	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).dvi"
+	-rm -- "$(DESTDIR)$(MAN1DIR)/$(COMMAND).1"
 	-rm -- "$(DESTDIR)$(DATADIR)/fish/completions/$(COMMAND).fish"
 	-rmdir -- "$(DESTDIR)$(DATADIR)/fish/completions"
 	-rmdir -- "$(DESTDIR)$(DATADIR)/fish"

@@ -1,5 +1,5 @@
 NAME
-	slack - Control your timer slack
+	slack - Spawn processes with customised timer slack
 
 SYNOPSIS
 	slack (get | GET)
@@ -23,7 +23,7 @@ DESCRIPTION
 	timer slack value for the process to INTERVAL, and
 	exec(3) to COMMAND.
 
-	INTERVAL must be a positive number, optioanlly with
+	INTERVAL must be a positive number, optionally with
 	a prefix. Recognised prefixes (and units) are:
 
 	ns, n               nanoseconds (default)
@@ -38,11 +38,11 @@ OPTIONS
 	--fatal
 		Fail if the timer slack value cannot be set.
 
+NOTES
+	Real-time threads do not slack around.
+
 RATIONALE
 	Could be useful increase the performance of your computer.
-
-NOTES:
-	Real-time threads do not slack around.
 
 SEE ALSO
 	nice(1) ionice(1), prctl(2)
