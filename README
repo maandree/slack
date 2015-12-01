@@ -1,5 +1,49 @@
-Get the current timer slack value or spawn
-a new process with a new timer slack value.
+NAME
+	slack - Control your timer slack
 
-Note: real-time threads do not slack around.
+SYNOPSIS
+	slack (get | GET)
+	slack ((reset | INTERVAL) [--fatal] [--] COMMAND...)
+
+DESCRIPTION
+	Get the current timer slack value or spawn a new process
+	with a new timer slack value.
+
+	If the verb get or GET is used, the current timer slack
+	value and exit. If get is used, the program shall use
+	as high prefix as possible. If GET is used the value
+	shall be printed in nanoseconds but not unit shall be
+	printed.
+
+	If the verb reset is used, the process shall set the
+	timer slack value for the process to the default timer
+	slack value, and exec(3) to COMMAND.
+
+	If an INTERVAL is given, the process shall set the
+	timer slack value for the process to INTERVAL, and
+	exec(3) to COMMAND.
+
+	INTERVAL must be a positive number, optioanlly with
+	a prefix. Recognised prefixes (and units) are:
+
+	ns, n               nanoseconds (default)
+	µs, µ, us, u        microseconds
+	ms, m               milliseconds
+	s                   seconds
+
+	The default timer slack value is the timer slack value
+	on PID 1.
+
+OPTIONS
+	--fatal
+		Fail if the timer slack value cannot be set.
+
+RATIONALE
+	Could be useful increase the performance of your computer.
+
+NOTES:
+	Real-time threads do not slack around.
+
+SEE ALSO
+	nice(1) ionice(1), prctl(2)
 

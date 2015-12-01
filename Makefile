@@ -5,37 +5,40 @@
 
 
 # The package path prefix, if you want to install to another root, set DESTDIR to that root.
-PREFIX ?= /usr
+PREFIX = /usr
 # The binary path excluding prefix.
-BIN ?= /bin
+BIN = /bin
 # The resource path excluding prefix.
-DATA ?= /share
+DATA = /share
 # The binary path including prefix.
-BINDIR ?= $(PREFIX)$(BIN)
+BINDIR = $(PREFIX)$(BIN)
 # The resource path including prefix.
-DATADIR ?= $(PREFIX)$(DATA)
+DATADIR = $(PREFIX)$(DATA)
 # The generic documentation path including prefix
-DOCDIR ?= $(DATADIR)/doc
+DOCDIR = $(DATADIR)/doc
 # The info manual documentation path including prefix
-INFODIR ?= $(DATADIR)/info
+INFODIR = $(DATADIR)/info
 # The license base path including prefix.
-LICENSEDIR ?= $(DATADIR)/licenses
+LICENSEDIR = $(DATADIR)/licenses
 
 
 # The name of the package as it should be installed.
-PKGNAME ?= slack
+PKGNAME = slack
 # The name of the command as it should be installed.
-COMMAND ?= slack
+COMMAND = slack
 
 
 
 # Build rules.
 
 .PHONY: default
-default: command info shell
+default: base info shell
 
 .PHONY: all
-all: command doc shell
+all: base doc shell
+
+.PHONY: base
+base: command
 
 # Build rules for the command.
 
@@ -44,7 +47,7 @@ command: bin/slack
 
 bin/slack: src/slack.c
 	mkdir -p bin
-	$(CC) -O3 -Wall -Wextra -pedantic $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) -o $@ $<
+	$(CC) -O3 -Wall -Wextra -pedantic -o $@ $< $(CFLAGS) $(LDFLAGS) $(CPPFLAGS)
 
 # Build rules for documentation.
 
@@ -52,30 +55,32 @@ bin/slack: src/slack.c
 doc: info pdf dvi ps
 
 .PHONY: info
-info: slack.info
-%.info: info/%.texinfo info/fdl.texinfo
+info: bin/slack.info
+bin/%.info: doc/info/%.texinfo doc/info/fdl.texinfo
+	@mkdir -p bin
 	makeinfo $<
+	mv $*.info $@
 
 .PHONY: pdf
-pdf: slack.pdf
-%.pdf: info/%.texinfo info/fdl.texinfo
-	@mkdir -p obj/pdf
-	cd obj/pdf ; yes X | texi2pdf ../../$<
-	mv obj/pdf/$@ $@
+pdf: bin/slack.pdf
+bin/%.pdf: doc/info/%.texinfo doc/info/fdl.texinfo
+	@mkdir -p obj/pdf bin
+	cd obj/pdf && texi2pdf ../../$< < /dev/null
+	mv obj/pdf/$*.pdf $@
 
 .PHONY: dvi
-dvi: slack.dvi
-%.dvi: info/%.texinfo info/fdl.texinfo
-	@mkdir -p obj/dvi
-	cd obj/dvi ; yes X | $(TEXI2DVI) ../../$<
-	mv obj/dvi/$@ $@
+dvi: bin/slack.dvi
+bin/%.dvi: doc/info/%.texinfo doc/info/fdl.texinfo
+	@mkdir -p obj/dvi bin
+	cd obj/dvi && $(TEXI2DVI) ../../$< < /dev/null
+	mv obj/dvi/$*.dvi $@
 
 .PHONY: ps
-ps: slack.ps
-%.ps: info/%.texinfo info/fdl.texinfo
-	@mkdir -p obj/ps
-	cd obj/ps ; yes X | texi2pdf --ps ../../$<
-	mv obj/ps/$@ $@
+ps: bin/slack.ps
+bin/%.ps: doc/info/%.texinfo doc/info/fdl.texinfo
+	@mkdir -p obj/ps bin
+	cd obj/ps && texi2pdf --ps ../../$< < /dev/null
+	mv obj/ps/$*.ps $@
 
 # Build rules for shell auto-completion.
 
@@ -138,22 +143,22 @@ install-license:
 install-doc: install-info install-pdf install-ps install-dvi
 
 .PHONY: install-info
-install-info: slack.info
+install-info: bin/slack.info
 	install -dm755 -- "$(DESTDIR)$(INFODIR)"
 	install -m644 $< -- "$(DESTDIR)$(INFODIR)/$(PKGNAME).info"
 
 .PHONY: install-pdf
-install-pdf: slack.pdf
+install-pdf: bin/slack.pdf
 	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
 	install -m644 $< -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).pdf"
 
 .PHONY: install-ps
-install-ps: slack.ps
+install-ps: bin/slack.ps
 	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
 	install -m644 $< -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).ps"
 
 .PHONY: install-dvi
-install-dvi: slack.dvi
+install-dvi: bin/slack.dvi
 	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
 	install -m644 $< -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).dvi"
 
@@ -205,5 +210,5 @@ uninstall:
 
 .PHONY: clean
 clean:
-	-rm -rf obj bin slack.info slack.pdf slack.ps slack.dvi
+	-rm -r obj bin
 
