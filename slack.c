@@ -1,119 +1,91 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
+/* See LICENSE file for copyright and license details. */
 #include <sys/prctl.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
+#include "arg.h"
 
+#define NS (1L)
+#define US (1000L)
+#define MS (1000L * 1000L)
+#define S  (1000L * 1000L * 1000L)
 
-#define NS  (1L)
-#define US  (1000L)
-#define MS  (1000L * 1000L)
-#define S   (1000L * 1000L * 1000L)
+char *argv0;
 
-
-static void usage(void)
+static void
+usage(void)
 {
-  printf("USAGE: slack (get | GET | ((reset | <interval>) [--fatal] [--] <command...>))\n");
-  printf("\n");
-  printf("The <interval> must be a positive number optionally with a suffix:\n");
-  printf("  ns  n           nanoseconds (default)\n");
-  printf("  µs  µ  us  u    microseconds\n");
-  printf("  ms  m           milliseconds\n");
-  printf("  s               seconds\n");
-  printf("\n");
-  printf("If `GET' is used rather than `get', the timer slack value will be printed in\n");
-  printf("nanoseconds without suffix. `GET' and `get' prints the current timer slack\n");
-  printf("value and exits.\n");
-  printf("\n");
-  printf("`reset` reset the timer slack value to the default (the time slack value for\n");
-  printf("the init process (PID 1) has.)\n");
-  printf("\n");
-  printf("Unless `--fatal` is used, the program will run <command> even if the timer\n");
-  printf("slack could not be set.\n");
-  printf("\n");
+	fprintf(stderr, "usage: %s [-f] ('get' | 'GET' | (('reset' | interval) command [argument] ...))\n", argv0);
+	exit(1);
 }
 
-
-int main(int argc, char** argv)
+int
+main(int argc, char **argv)
 {
-  long slackvalue, r;
-  int i, j, fatal = 0;
-  char** exec_argv;
-  
-  if ((argc < 2) || !strcmp(argv[1], "--help") || !strcmp(argv[1], "help"))
-    return usage(), argc < 2 ? 1 : 0;
-  
-  if (!strcmp(argv[1], "get") || !strcmp(argv[1], "GET"))
-    {
-      const char* suffix;
-      if (r = prctl(PR_GET_TIMERSLACK), r < 0)
-	perror(*argv);
-      else
-	{
-	  if (!strcmp(argv[1], "GET"))
-	    suffix = "";
-	  else if (r %  S == 0)  suffix =  "s", r /=  S;
-	  else if (r % MS == 0)  suffix = "ms", r /= MS;
-	  else if (r % US == 0)  suffix = "µs", r /= US;
-	  else                   suffix = "ns";
-	  printf("%li%s\n", r, suffix);
+	int fatal;
+	long int slackvalue;
+	const char *suffix;
+	char *end;
+	int r;
+
+	ARGBEGIN {
+	case 'f':
+		fatal = 1;
+		break;
+	default:
+		usage();
+	} ARGEND;
+
+	if (!argc)
+		usage();
+
+	if (!strcmp(*argv, "get") || !strcmp(*argv, "GET")) {
+		if (argc > 1)
+			usage();
+		r = prctl(PR_GET_TIMERSLACK);
+		if (r < 0)
+			return fprintf(stderr, "%s: prctl PR_GET_TIMERSLACK: %s\n", argv0, strerror(errno)), 1;
+		if (!strcmp(*argv, "GET")) suffix = "";
+		else if (r %  S == 0)      suffix =  "s", r /=  S;
+		else if (r % MS == 0)      suffix = "ms", r /= MS;
+		else if (r % US == 0)      suffix = "µs", r /= US;
+		else                       suffix = "ns";
+		printf("%i%s\n", r, suffix);
+		return 0;
 	}
-      return r > 0 ? 0 : 1;
-    }
-  
-  for (i = 2; i < argc; i++)
-    if (!strcmp(argv[i], "--fatal"))
-      fatal = 1;
-    else if (!strcmp(argv[i], "--"))
-      {
-	i++;
-	break;
-      }
-    else if (strstr(argv[i], "-") == argv[i])
-      return usage(), 1;
-    else
-      break;
-  
-  if (i == argc)
-    return usage(), 1;
-  
-  exec_argv = malloc((argc - i + 1) * sizeof(char*));
-  if (exec_argv == NULL)
-    return perror(*argv), 2;
-  exec_argv[argc - i] = NULL;
-  for (j = 0; i < argc; j++, i++)
-    exec_argv[j] = argv[i];
-  
-  if (!strcmp(argv[1], "reset"))
-    slackvalue = 0;
-  else
-    {
-      char* end;
-      
-      slackvalue = strtol(argv[1], &end, 10);
-      if (end == argv[1])
-	return fprintf(stderr, "No slack value specified."), free(exec_argv), 1;
-      
-      if      (!strcmp(end, "n") || !strcmp(end, "ns") || !strcmp(end, ""))  slackvalue *= NS;
-      else if (!strcmp(end, "µ") || !strcmp(end, "µs"))                      slackvalue *= US;
-      else if (!strcmp(end, "u") || !strcmp(end, "us"))                      slackvalue *= US;
-      else if (!strcmp(end, "m") || !strcmp(end, "ms"))                      slackvalue *= MS;
-      else if (!strcmp(end, "s"))                                            slackvalue *=  S;
-      else
-	return fprintf(stderr, "Unrecognised suffix for slack value."), free(exec_argv), 1;
-      
-      if (slackvalue <= 0)
-	return fprintf(stderr, "Invalid slack value: %lins", slackvalue), free(exec_argv), 1;
-    }
-  
-  if (r = prctl(PR_SET_TIMERSLACK, slackvalue), r < 0)
-    if (perror(*argv), fatal)
-      return free(exec_argv), 2;
-  
-  execvp(*exec_argv, exec_argv);
-  perror(*argv);
-  free(exec_argv);
-  return 2;
-}
 
+	if (argc < 2)
+		usage();
+
+	if (!strcmp(*argv, "reset")) {
+		slackvalue = 0;
+	} else {
+		slackvalue = strtol(*argv, &end, 10);
+		if (end == *argv)
+			return fprintf(stderr, "%s: no slack value specified\n", argv0), 1;
+		if      (!strcmp(end, "n") || !strcmp(end, "ns") || !strcmp(end, ""))  slackvalue *= NS;
+		else if (!strcmp(end, "µ") || !strcmp(end, "µs"))                      slackvalue *= US;
+		else if (!strcmp(end, "u") || !strcmp(end, "us"))                      slackvalue *= US;
+		else if (!strcmp(end, "m") || !strcmp(end, "ms"))                      slackvalue *= MS;
+		else if (!strcmp(end, "s"))                                            slackvalue *=  S;
+		else
+			return fprintf(stderr, "%s: unrecognised suffix for slack value\n", argv0), 1;
+		if (slackvalue <= 0)
+			return fprintf(stderr, "%s: invalid slack value: %lins\n", argv0, slackvalue), 1;
+	}
+
+	r = prctl(PR_SET_TIMERSLACK, slackvalue);
+	if (r < 0) {
+		fprintf(stderr, "%s: prctl PR_SET_TIMERSLACK %li: %s\n", argv0, slackvalue, strerror(errno));
+		if (fatal)
+			return 1;
+	}
+
+	argv++;
+	execvp(*argv, argv);
+	fprintf(stderr, "%s: execvp %s: %s\n", argv0, *argv, strerror(errno));
+	return 1;
+}

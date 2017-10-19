@@ -3,12 +3,10 @@
 slack - Spawn processes with customised timer slack
 .SH SYNOPSIS
 .B slack
-(get | GET)
-.br
-.B slack
-.RI ((reset\ |\  INTERVAL )
-[\-\-fatal] [--]
-.IR COMMAND ...)
+[-f] ('get' | 'GET' | ('reset' |
+.IR interval )
+.I command
+.RI [ argument ]\ ...)
 .SH DESCRIPTION
 If the verb 
 .B get
@@ -24,19 +22,19 @@ If the verb reset is used, the process shall set the timer slack value
 for the process to the default timer slack value, and
 .BR exec (3)
 to
-.IR COMMAND .
+.IR command .
 .PP
 If an
-.I INTERVAL
+.I interval
 is given, the process shall set the timer slack value for the process
 to
-.IR INTERVAL ,
+.IR interval ,
 and
 .BR exec (3)
 to
-.IR COMMAND .
+.IR command .
 .PP
-.I INTERVAL
+.I interval
 must be a positive number, optionally with a prefix. Recognised
 prefixes (and units) are:
 .TP
@@ -55,7 +53,7 @@ seconds
 The default timer slack value is the timer slack value on PID 1.
 .SH OPTIONS
 .TP
-.B \-\-fatal
+.B \-f
 Fail if the timer slack value cannot be set.
 .SH NOTES
 Real-time threads do not slack around.

@@ -2,8 +2,7 @@ NAME
 	slack - Spawn processes with customised timer slack
 
 SYNOPSIS
-	slack (get | GET)
-	slack ((reset | INTERVAL) [--fatal] [--] COMMAND...)
+	slack [-f] ('get' | 'GET' | ('reset' | interval) command [argument] ...
 
 DESCRIPTION
 	Get the current timer slack value or spawn a new process
@@ -17,13 +16,13 @@ DESCRIPTION
 
 	If the verb reset is used, the process shall set the
 	timer slack value for the process to the default timer
-	slack value, and exec(3) to COMMAND.
+	slack value, and exec(3) to command.
 
-	If an INTERVAL is given, the process shall set the
-	timer slack value for the process to INTERVAL, and
-	exec(3) to COMMAND.
+	If an interval is given, the process shall set the
+	timer slack value for the process to interval, and
+	exec(3) to command.
 
-	INTERVAL must be a positive number, optionally with
+	interval must be a positive number, optionally with
 	a prefix. Recognised prefixes (and units) are:
 
 	ns, n               nanoseconds (default)
@@ -35,7 +34,7 @@ DESCRIPTION
 	on PID 1.
 
 OPTIONS
-	--fatal
+	-f
 		Fail if the timer slack value cannot be set.
 
 NOTES

@@ -8,7 +8,7 @@ all: slack
 slack: slack.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-slack.o: slack.c
+slack.o: slack.c arg.h
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
 
 install: slack
