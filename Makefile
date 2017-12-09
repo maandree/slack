@@ -6,7 +6,7 @@ include $(CONFIGFILE)
 all: slack
 
 slack: slack.o
-	$(CC) -o $@ $^ $(LDFLAGS)
+	$(CC) -o $@ slack.o $(LDFLAGS)
 
 slack.o: slack.c arg.h
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
