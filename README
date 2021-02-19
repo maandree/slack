@@ -2,7 +2,7 @@ NAME
 	slack - Spawn processes with customised timer slack
 
 SYNOPSIS
-	slack [-f] ('get' | 'GET' | ('reset' | interval) command [argument] ...
+	slack [-f] ('get' | 'GET' | ('reset' | interval) command [argument] ...)
 
 DESCRIPTION
 	Get the current timer slack value or spawn a new process
