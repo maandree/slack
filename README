@@ -44,4 +44,4 @@ RATIONALE
 	Could be useful increase the performance of your computer.
 
 SEE ALSO
-	nice(1) ionice(1), prctl(2)
+	nice(1), ionice(1), prctl(2)
