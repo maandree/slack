@@ -12,7 +12,7 @@ slack: slack.o
 slack.o: slack.c arg.h
 	$(CC) -c -o $@ slack.c $(CFLAGS) $(CPPFLAGS)
 
-check:
+check: slack
 	test $$(./slack 1ms ./slack get) = 1ms
 	test $$(./slack 1ms ./slack GET) = 1000000
 	test $$(./slack 1 ./slack reset ./slack GET) = $$(./slack GET)

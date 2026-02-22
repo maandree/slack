@@ -26,7 +26,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-	int fatal;
+	int fatal = 0;
 	long int slackvalue;
 	const char *suffix;
 	char *end;

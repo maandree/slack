@@ -12,10 +12,11 @@ If the verb
 .B get
 or
 .B GET
-is used, the current timer slack value and exit. If get is used, the
-program shall use as high prefix as possible. If
-.V GET
-is used the value shall be printed in nanoseconds but not unit shall
+is used, the current timer slack value is printed and the
+process exit. If get is used, the
+program shall use the highest prefix as possible. If
+.B GET
+is used the value shall be printed in nanoseconds but no unit shall
 be printed.
 .PP
 If the verb reset is used, the process shall set the timer slack value
@@ -58,7 +59,7 @@ Fail if the timer slack value cannot be set.
 .SH NOTES
 Real-time threads do not slack around.
 .SH RATIONALE
-Could be useful increase the performance of your computer.
+Could be useful to increase the performance of your computer.
 .SH "SEE ALSO"
 .BR nice (1),
 .BR ionice (1),
